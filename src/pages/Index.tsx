@@ -106,7 +106,7 @@ const Index = () => {
       case "gas": setSensor("S_GLP", 1200); break;
       case "emergency": setForceStatus("emergency"); break;
       case "test":
-        setHistory((p) => [{ id: `t-${Date.now()}`, level: "info", message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") }, ...p].slice(0, 12));
+        setHistory((p) => [{ id: `t-${Date.now()}`, level: "info" as const, message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") }, ...p].slice(0, 12));
         break;
       case "clear":
         setHistory([]);
