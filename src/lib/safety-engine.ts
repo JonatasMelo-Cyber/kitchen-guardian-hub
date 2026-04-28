@@ -1,10 +1,10 @@
 import type { Sensor, Actuator, SystemStatus, AlertMessage, SensorState } from "@/types/safety";
 
 export const initialSensors: Sensor[] = [
-  { id: "S_calor", label: "Sensor de Calor", unit: "°C", value: 28, state: "ok", zone: "stove", position: { x: 22, y: 38 } },
-  { id: "S_fumaca", label: "Sensor de Fumaça", unit: "%", value: 4, state: "ok", zone: "vent", position: { x: 30, y: 14 } },
-  { id: "S_GLP", label: "Sensor de GLP", unit: "ppm", value: 80, state: "ok", zone: "gas", position: { x: 78, y: 70 } },
-  { id: "S_movimento", label: "Sensor de Movimento", unit: "", value: 0, state: "ok", zone: "prep", position: { x: 58, y: 48 } },
+  { id: "S_calor", label: "Sensor de Calor", unit: "°C", value: 28, state: "ok", zone: "stove", position: { x: 32, y: 46 } },
+  { id: "S_fumaca", label: "Sensor de Fumaça", unit: "%", value: 4, state: "ok", zone: "vent", position: { x: 28, y: 22 } },
+  { id: "S_GLP", label: "Sensor de GLP", unit: "ppm", value: 80, state: "ok", zone: "gas", position: { x: 88, y: 70 } },
+  { id: "S_movimento", label: "Sensor de Movimento", unit: "", value: 0, state: "ok", zone: "prep", position: { x: 55, y: 70 } },
 ];
 
 export const initialActuators: Actuator[] = [
