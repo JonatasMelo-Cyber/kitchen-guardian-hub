@@ -47,6 +47,20 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        status: {
+          normal: { DEFAULT: "hsl(var(--status-normal))", foreground: "hsl(var(--status-normal-foreground))" },
+          warning: { DEFAULT: "hsl(var(--status-warning))", foreground: "hsl(var(--status-warning-foreground))" },
+          danger: { DEFAULT: "hsl(var(--status-danger))", foreground: "hsl(var(--status-danger-foreground))" },
+          critical: { DEFAULT: "hsl(var(--status-critical))", foreground: "hsl(var(--status-critical-foreground))" },
+          info: { DEFAULT: "hsl(var(--status-info))", foreground: "hsl(var(--status-info-foreground))" },
+        },
+        env: {
+          stove: "hsl(var(--env-stove))",
+          prep: "hsl(var(--env-prep))",
+          vent: "hsl(var(--env-vent))",
+          gas: "hsl(var(--env-gas))",
+          storage: "hsl(var(--env-storage))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
