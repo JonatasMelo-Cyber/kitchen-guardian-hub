@@ -8,6 +8,7 @@ import { SystemStatusCard } from "@/components/safety/SystemStatusCard";
 import { EventHistory } from "@/components/safety/EventHistory";
 import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
+import { EmergencyButton } from "@/components/safety/EmergencyButton";
 import {
   initialSensors,
   initialActuators,
@@ -130,7 +131,10 @@ const Index = () => {
         </section>
 
         <section className="grid gap-5 lg:grid-cols-[1fr_320px]">
-          <KitchenView sensors={sensors} status={status} />
+          <div className="space-y-5">
+            <KitchenView sensors={sensors} status={status} />
+            <EmergencyButton onClick={() => handleAction("emergency")} />
+          </div>
           <div className="space-y-5">
             <ActuatorGrid actuators={actuators} />
             <SystemStatusCard status={status} sensors={sensors} />

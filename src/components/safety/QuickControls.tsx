@@ -8,16 +8,6 @@ export function QuickControls({ onAction }: { onAction: (a: SimAction | "alarm" 
       <p className="mb-3 text-[11px] text-muted-foreground">Ações manuais de emergência</p>
       <div className="space-y-2">
         <button
-          onClick={() => onAction("emergency")}
-          className="flex w-full items-center gap-3 rounded-xl bg-status-danger px-4 py-3 text-left text-status-danger-foreground transition-transform hover:scale-[1.01]"
-        >
-          <BellRing className="h-5 w-5" />
-          <div>
-            <div className="text-sm font-bold tracking-wide">ALARME GERAL</div>
-            <div className="text-[11px] opacity-90">Aciona todos os protocolos</div>
-          </div>
-        </button>
-        <button
           onClick={() => onAction("test")}
           className="flex w-full items-center gap-3 rounded-xl bg-status-info px-4 py-3 text-left text-status-info-foreground transition-transform hover:scale-[1.01]"
         >
