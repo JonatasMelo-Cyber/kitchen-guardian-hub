@@ -1,4 +1,4 @@
-import { Flame, Wind, Fuel, ChefHat, Archive, DoorOpen } from "lucide-react";
+import { Flame, Wind, Fuel, ChefHat, Archive, DoorOpen, Snowflake, Droplets } from "lucide-react";
 import type { Sensor, SystemStatus } from "@/types/safety";
 import { cn } from "@/lib/utils";
 import kitchenImg from "@/assets/kitchen-isometric.jpg";
@@ -9,6 +9,8 @@ const labelByZone = {
   vent: { label: "VENTILAÇÃO", icon: Wind, color: "bg-status-info text-status-info-foreground" },
   gas: { label: "GÁS", icon: Fuel, color: "bg-status-normal text-status-normal-foreground" },
   storage: { label: "ARMAZENAMENTO", icon: Archive, color: "bg-status-info text-status-info-foreground" },
+  cold: { label: "CÂMARA FRIA", icon: Snowflake, color: "bg-status-info text-status-info-foreground" },
+  sink: { label: "PIA", icon: Droplets, color: "bg-status-info text-status-info-foreground" },
 } as const;
 
 const zones: Array<{ key: keyof typeof labelByZone; x: number; y: number }> = [
@@ -17,6 +19,8 @@ const zones: Array<{ key: keyof typeof labelByZone; x: number; y: number }> = [
   { key: "prep", x: 50, y: 56 },
   { key: "gas", x: 86, y: 60 },
   { key: "storage", x: 70, y: 86 },
+  { key: "cold", x: 14, y: 70 },
+  { key: "sink", x: 60, y: 32 },
 ];
 
 const sensorDot = {
