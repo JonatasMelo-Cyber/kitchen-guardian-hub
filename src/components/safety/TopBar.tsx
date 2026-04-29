@@ -42,16 +42,6 @@ export function TopBar({ status, alertCount }: { status: SystemStatus; alertCoun
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
-            <UserCircle2 className="h-5 w-5 text-foreground/80" />
-          </div>
-          <div className="text-left">
-            <div className="text-xs font-semibold leading-tight">Operador</div>
-            <div className="text-[10px] text-muted-foreground">Nível: Administrador</div>
-          </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-        </div>
         <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card">
           <Bell className="h-4 w-4" />
           {alertCount > 0 && (
