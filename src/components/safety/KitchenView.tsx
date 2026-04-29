@@ -20,7 +20,7 @@ const zones: Array<{ key: keyof typeof labelByZone; x: number; y: number }> = [
   { key: "gas", x: 86, y: 60 },
   { key: "storage", x: 70, y: 86 },
   { key: "cold", x: 14, y: 70 },
-  { key: "sink", x: 60, y: 32 },
+  { key: "sink", x: 78, y: 40 },
 ];
 
 const sensorDot = {
