@@ -4,12 +4,6 @@ import { useState } from "react";
 
 const items = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: Map, label: "Planta" },
-  { icon: Radio, label: "Sensores" },
-  { icon: Cpu, label: "Atuadores" },
-  { icon: CalendarClock, label: "Eventos" },
-  { icon: FileBarChart2, label: "Relatórios" },
-  { icon: Settings, label: "Configurações" },
 ];
 
 export function Sidebar({ time, date }: { time: string; date: string }) {
