@@ -48,7 +48,7 @@ export function KitchenView({ sensors, status }: { sensors: Sensor[]; status: Sy
         </div>
       </div>
 
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-[#0F1729]">
+      <div className="relative aspect-[4/3] md:aspect-[16/10] w-full overflow-hidden rounded-xl border border-border bg-[#0F1729]">
         <img
           src={kitchenImg}
           alt="Planta isométrica da cozinha industrial com fogões, coifa, área de preparo, armazenamento e cilindro de GLP"
