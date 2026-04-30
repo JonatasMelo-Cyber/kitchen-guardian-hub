@@ -124,7 +124,7 @@ const Index = () => {
     <div className="flex min-h-screen w-full">
       <Sidebar time={time} date={date} />
       <main className="flex-1 space-y-5 p-5 lg:p-6 overflow-x-hidden">
-        <TopBar status={status} alertCount={alertCount} />
+        <TopBar status={status} alertCount={alertCount} time={time} date={date} />
 
         <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {sensors.map((s) => <KpiCard key={s.id} sensor={s} />)}
