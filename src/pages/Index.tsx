@@ -133,10 +133,10 @@ const Index = () => {
         <section className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <div className="space-y-5">
             <KitchenView sensors={sensors} status={status} />
-            <EmergencyButton onClick={() => handleAction("emergency")} />
           </div>
           <div className="space-y-5">
             <ActuatorGrid actuators={actuators} />
+            <EmergencyButton onClick={() => handleAction("emergency")} />
             <SystemStatusCard status={status} sensors={sensors} />
           </div>
         </section>
