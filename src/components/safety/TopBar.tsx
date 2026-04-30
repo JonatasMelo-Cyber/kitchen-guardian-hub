@@ -11,7 +11,7 @@ const banner: Record<SystemStatus, { cls: string; title: string; sub: string } |
   emergency: { cls: "bg-status-critical text-status-critical-foreground blink-critical", title: "EMERGÊNCIA GERAL", sub: "Protocolos de emergência ativos" },
 };
 
-export function TopBar({ status, alertCount }: { status: SystemStatus; alertCount: number }) {
+export function TopBar({ status, alertCount, time, date }: { status: SystemStatus; alertCount: number; time: string; date: string }) {
   const b = banner[status];
   const meta = statusMeta(status);
   return (
@@ -42,6 +42,10 @@ export function TopBar({ status, alertCount }: { status: SystemStatus; alertCoun
       </div>
 
       <div className="flex items-center gap-2">
+        <div className="rounded-xl border border-border bg-card px-3 py-2 text-center">
+          <div className="font-mono text-sm font-bold text-foreground tabular-nums leading-none">{time}</div>
+          <div className="text-[10px] text-muted-foreground mt-0.5">{date}</div>
+        </div>
         <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card">
           <Bell className="h-4 w-4" />
           {alertCount > 0 && (
