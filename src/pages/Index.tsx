@@ -133,6 +133,10 @@ const Index = () => {
         <section className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <div className="space-y-5">
             <KitchenView sensors={sensors} status={status} />
+            <div className="grid gap-5 md:grid-cols-2">
+              <EventHistory alerts={alerts} />
+              <RealtimeCharts data={series} />
+            </div>
           </div>
           <div className="space-y-5">
             <ActuatorGrid actuators={actuators} />
@@ -141,9 +145,7 @@ const Index = () => {
           </div>
         </section>
 
-        <section className="grid gap-5 lg:grid-cols-3">
-          <EventHistory alerts={alerts} />
-          <RealtimeCharts data={series} />
+        <section>
           <QuickControls onAction={handleAction} />
         </section>
       </main>
