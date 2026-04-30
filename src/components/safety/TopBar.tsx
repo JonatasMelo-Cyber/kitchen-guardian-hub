@@ -11,7 +11,7 @@ const banner: Record<SystemStatus, { cls: string; title: string; sub: string } |
   emergency: { cls: "bg-status-critical text-status-critical-foreground blink-critical", title: "EMERGÊNCIA GERAL", sub: "Protocolos de emergência ativos" },
 };
 
-export function TopBar({ status, alertCount }: { status: SystemStatus; alertCount: number }) {
+export function TopBar({ status, alertCount, time, date }: { status: SystemStatus; alertCount: number; time: string; date: string }) {
   const b = banner[status];
   const meta = statusMeta(status);
   return (
