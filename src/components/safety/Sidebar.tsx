@@ -22,16 +22,6 @@ export function Sidebar({ time, date }: { time: string; date: string }) {
 
       <div className="flex-1" />
 
-      <div className="mt-4 rounded-xl border border-sidebar-border bg-sidebar-accent/40 p-3">
-        <div className="flex items-center gap-2 text-xs font-semibold text-status-normal">
-          <CircleDot className="h-3 w-3 animate-pulse" /> CONECTADO
-        </div>
-        <div className="mt-0.5 text-[11px] text-muted-foreground">Sistema online</div>
-      </div>
-      <div className="mt-3 rounded-xl border border-sidebar-border bg-background/40 p-3 text-center">
-        <div className="font-mono text-xl font-bold text-foreground tabular-nums">{time}</div>
-        <div className="text-[11px] text-muted-foreground">{date}</div>
-      </div>
     </aside>
   );
 }
