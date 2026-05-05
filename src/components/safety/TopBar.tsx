@@ -1,52 +1,43 @@
-import { AlertTriangle, Bell, ChevronDown, UserCircle2 } from "lucide-react";
+import { AlertTriangle, Bell } from "lucide-react";
 import type { SystemStatus } from "@/types/safety";
 import { cn } from "@/lib/utils";
 import { statusMeta } from "@/lib/safety-engine";
 
 const banner: Record<SystemStatus, { cls: string; title: string; sub: string } | null> = {
   normal: null,
-  alert: { cls: "bg-status-warning text-status-warning-foreground pulse-warning", title: "ALERTA DETECTADO", sub: "Monitoramento intensivo em andamento" },
-  fire: { cls: "bg-status-danger text-status-danger-foreground pulse-danger", title: "INCÊNDIO DETECTADO!", sub: "Ações de contenção em andamento" },
-  explosion: { cls: "bg-status-danger text-status-danger-foreground pulse-danger", title: "RISCO DE EXPLOSÃO!", sub: "Vazamento de GLP — não acione interruptores" },
-  emergency: { cls: "bg-status-critical text-status-critical-foreground blink-critical", title: "EMERGÊNCIA GERAL", sub: "Protocolos de emergência ativos" },
+  alert:    { cls: "border-status-warning/60 bg-status-warning/10 text-status-warning glow-warning", title: "ALERTA DETECTADO", sub: "Monitoramento intensivo em andamento" },
+  fire:     { cls: "border-status-danger/70 bg-status-danger/10 text-status-danger glow-danger pulse-danger", title: "INCÊNDIO DETECTADO", sub: "Acionando supressão" },
+  explosion:{ cls: "border-status-danger/70 bg-status-danger/10 text-status-danger glow-danger pulse-danger", title: "RISCO DE EXPLOSÃO", sub: "Vazamento de GLP" },
+  emergency:{ cls: "border-status-critical/70 bg-status-critical/15 text-status-critical glow-danger blink-critical", title: "EMERGÊNCIA GERAL", sub: "Protocolos de emergência ativos" },
 };
 
 export function TopBar({ status, alertCount, time, date }: { status: SystemStatus; alertCount: number; time: string; date: string }) {
   const b = banner[status];
   const meta = statusMeta(status);
   return (
-    <header className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight">DASHBOARD</h1>
-        <p className="text-xs text-muted-foreground">Visão geral em tempo real do sistema</p>
-      </div>
-
-      <div className="flex-1 lg:max-w-lg lg:mx-6">
+    <header className="flex items-center justify-between gap-4">
+      <div className="flex-1 min-w-0">
         {b ? (
-          <div className={cn("flex items-center justify-center gap-3 rounded-2xl px-5 py-3 shadow-lg", b.cls)}>
-            <AlertTriangle className="h-5 w-5" />
-            <div className="text-center">
-              <div className="text-sm font-extrabold tracking-wider">{b.title}</div>
-              <div className="text-[11px] opacity-90">{b.sub}</div>
+          <div className={cn("flex items-center gap-3 rounded-2xl border-2 px-5 py-3", b.cls)}>
+            <AlertTriangle className="h-5 w-5 shrink-0" />
+            <div className="min-w-0">
+              <div className="text-sm font-extrabold tracking-wider truncate">{b.title}</div>
+              <div className="text-[11px] opacity-90 truncate">{b.sub}</div>
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-3 rounded-2xl border border-status-normal/40 bg-status-normal/10 px-5 py-3 text-status-normal">
+          <div className="flex items-center gap-3 rounded-2xl border border-status-normal/40 bg-status-normal/10 px-5 py-3 text-status-normal glow-normal">
             <div className="h-2.5 w-2.5 animate-pulse rounded-full bg-status-normal" />
-            <div className="text-center">
+            <div className="min-w-0">
               <div className="text-sm font-extrabold tracking-wider">SISTEMA NORMAL</div>
-              <div className="text-[11px] opacity-90">{meta.message}</div>
+              <div className="text-[11px] opacity-90 truncate">{meta.message}</div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="rounded-xl border border-border bg-card px-3 py-2 text-center">
-          <div className="font-mono text-sm font-bold text-foreground tabular-nums leading-none">{time}</div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">{date}</div>
-        </div>
-        <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card">
+      <div className="flex shrink-0 items-center gap-2">
+        <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-colors hover:bg-muted">
           <Bell className="h-4 w-4" />
           {alertCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-status-danger px-1 text-[10px] font-bold text-status-danger-foreground">
@@ -54,6 +45,10 @@ export function TopBar({ status, alertCount, time, date }: { status: SystemStatu
             </span>
           )}
         </button>
+        <div className="rounded-xl border border-border bg-card px-3 py-2 text-right">
+          <div className="font-mono text-sm font-bold text-foreground tabular-nums leading-none">{time}</div>
+          <div className="text-[10px] text-muted-foreground mt-0.5">{date}</div>
+        </div>
       </div>
     </header>
   );
