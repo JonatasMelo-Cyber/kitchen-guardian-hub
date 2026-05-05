@@ -10,7 +10,7 @@ export function RealtimeCharts({ data }: { data: Point[] }) {
       <div className="grid grid-cols-3 gap-3">
         <Mini title="Temperatura (°C)" data={data} dataKey="calor" color="hsl(var(--status-danger))" />
         <Mini title="Fumaça (%)"       data={data} dataKey="fumaca" color="hsl(var(--status-warning))" />
-        <Mini title="Gás (ppm)"        data={data} dataKey="glp"    color="hsl(var(--status-normal))" />
+        <Mini title="Gás (ppm)"        data={data} dataKey="glp"    color="hsl(var(--status-gas))" />
       </div>
     </div>
   );

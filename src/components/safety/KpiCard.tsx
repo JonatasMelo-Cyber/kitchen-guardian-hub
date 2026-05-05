@@ -3,16 +3,16 @@ import type { Sensor } from "@/types/safety";
 import { cn } from "@/lib/utils";
 
 const meta = {
-  S_calor:    { icon: Flame, title: "S. CALOR",    bg: "bg-status-warning/15",  iconBg: "bg-status-warning/25  text-status-warning" },
-  S_fumaca:   { icon: Wind,  title: "S. FUMAÇA",   bg: "bg-status-danger/10",   iconBg: "bg-status-danger/20   text-status-danger" },
-  S_GLP:      { icon: Fuel,  title: "S. GLP",      bg: "bg-status-normal/10",   iconBg: "bg-status-normal/20   text-status-normal" },
-  S_movimento:{ icon: PersonStanding, title: "S. MOVIMENTO", bg: "bg-status-info/10", iconBg: "bg-status-info/20 text-status-info" },
+  S_calor:    { icon: Flame, title: "TEMPERATURA", iconColor: "text-status-warning" },
+  S_fumaca:   { icon: Wind,  title: "FUMAÇA",      iconColor: "text-status-danger" },
+  S_GLP:      { icon: Fuel,  title: "GÁS GLP",     iconColor: "text-status-gas" },
+  S_movimento:{ icon: PersonStanding, title: "MOVIMENTO", iconColor: "text-status-info" },
 } as const;
 
 const stateLabel = {
-  ok: { label: "NORMAL", color: "text-status-normal" },
-  warning: { label: "ALERTA", color: "text-status-warning" },
-  danger: { label: "PERIGO", color: "text-status-danger" },
+  ok: { label: "NORMAL", color: "text-status-normal", border: "card-state-ok" },
+  warning: { label: "ALERTA", color: "text-status-warning", border: "card-state-warning" },
+  danger: { label: "PERIGO", color: "text-status-danger", border: "card-state-danger" },
 } as const;
 
 export function KpiCard({ sensor }: { sensor: Sensor }) {
@@ -28,12 +28,15 @@ export function KpiCard({ sensor }: { sensor: Sensor }) {
     : st.label;
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-2xl border border-border bg-card p-4", m.bg)}>
-      <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl", m.iconBg)}>
-        <Icon className="h-6 w-6" />
+    <div className={cn(
+      "flex items-center gap-3 rounded-2xl border bg-card p-4 transition-all duration-300",
+      st.border,
+    )}>
+      <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl bg-background/60 ring-1 ring-border", m.iconColor)}>
+        <Icon className="h-5 w-5" />
       </div>
-      <div className="flex-1">
-        <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{m.title}</div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{m.title}</div>
         <div className={cn("text-2xl font-extrabold leading-tight tabular-nums", st.color)}>
           {display}
           {sensor.id !== "S_movimento" && <span className="ml-1 text-sm font-semibold text-muted-foreground">{sensor.unit}</span>}

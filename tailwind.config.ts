@@ -53,6 +53,7 @@ export default {
           danger: { DEFAULT: "hsl(var(--status-danger))", foreground: "hsl(var(--status-danger-foreground))" },
           critical: { DEFAULT: "hsl(var(--status-critical))", foreground: "hsl(var(--status-critical-foreground))" },
           info: { DEFAULT: "hsl(var(--status-info))", foreground: "hsl(var(--status-info-foreground))" },
+          gas: { DEFAULT: "hsl(var(--status-gas))", foreground: "hsl(var(--status-gas-foreground))" },
         },
         env: {
           stove: "hsl(var(--env-stove))",

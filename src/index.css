@@ -2,72 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* SafeKitchen — Industrial premium design tokens
+   Paleta fixa:
+   bg #0B0F14, card #121821, elevation #18212B, border #1F2A37
+   text #E6EDF3 / #9AA4AF / #6B7280
+   green #22C55E (safe), amber #F59E0B (alert), red #EF4444 (danger)
+   blue #3B82F6 (interaction), cyan #06B6D4 (gas)
+*/
+
 @layer base {
   :root {
-    --background: 220 25% 7%;
-    --foreground: 210 40% 98%;
+    --background: 212 30% 6%;          /* #0B0F14 */
+    --foreground: 213 22% 93%;         /* #E6EDF3 */
 
-    --card: 220 24% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 213 26% 10%;               /* #121821 */
+    --card-foreground: 213 22% 93%;
 
-    --popover: 220 24% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 213 26% 13%;            /* #18212B */
+    --popover-foreground: 213 22% 93%;
 
-    --primary: 199 89% 48%;
-    --primary-foreground: 220 25% 7%;
+    --primary: 217 91% 60%;            /* #3B82F6 */
+    --primary-foreground: 213 22% 97%;
 
-    --secondary: 220 20% 16%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 213 26% 13%;          /* #18212B */
+    --secondary-foreground: 213 22% 93%;
 
-    --muted: 220 20% 14%;
-    --muted-foreground: 215 16% 65%;
+    --muted: 213 22% 14%;
+    --muted-foreground: 215 12% 65%;   /* #9AA4AF */
 
-    --accent: 199 89% 48%;
-    --accent-foreground: 220 25% 7%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 213 22% 97%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;          /* #EF4444 */
+    --destructive-foreground: 213 22% 97%;
 
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
-    --ring: 199 89% 48%;
+    --border: 215 23% 17%;             /* #1F2A37 */
+    --input: 215 23% 17%;
+    --ring: 217 91% 60%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
-    /* Status tokens */
-    --status-normal: 142 71% 45%;
+    /* Status (semantic) */
+    --status-normal: 142 71% 45%;          /* #22C55E */
     --status-normal-foreground: 0 0% 100%;
-    --status-warning: 42 96% 56%;
-    --status-warning-foreground: 220 25% 7%;
-    --status-danger: 0 84% 60%;
+    --status-warning: 38 92% 50%;          /* #F59E0B */
+    --status-warning-foreground: 212 30% 6%;
+    --status-danger: 0 84% 60%;            /* #EF4444 */
     --status-danger-foreground: 0 0% 100%;
-    --status-critical: 0 91% 50%;
+    --status-critical: 0 84% 50%;          /* #DC2626 */
     --status-critical-foreground: 0 0% 100%;
-    --status-info: 199 89% 48%;
+    --status-info: 217 91% 60%;            /* #3B82F6 */
     --status-info-foreground: 0 0% 100%;
+    --status-gas: 189 94% 43%;             /* #06B6D4 */
+    --status-gas-foreground: 0 0% 100%;
 
-    /* Environments */
+    /* Environments (subtle, for map only) */
     --env-stove: 18 90% 55%;
-    --env-prep: 200 70% 50%;
-    --env-vent: 180 60% 50%;
-    --env-gas: 280 65% 60%;
+    --env-prep: 217 91% 60%;
+    --env-vent: 189 94% 43%;
+    --env-gas: 189 94% 43%;
     --env-storage: 50 70% 55%;
 
+    /* Sidebar */
+    --sidebar-background: 213 26% 8%;
+    --sidebar-foreground: 213 22% 93%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 213 26% 13%;
+    --sidebar-accent-foreground: 213 22% 93%;
+    --sidebar-border: 215 23% 17%;
+    --sidebar-ring: 217 91% 60%;
+
     /* Gradients */
-    --gradient-bg: radial-gradient(ellipse at top, hsl(220 30% 12%), hsl(220 25% 6%));
-    --gradient-stove: linear-gradient(135deg, hsl(18 90% 55% / 0.25), hsl(0 80% 50% / 0.1));
-    --gradient-prep: linear-gradient(135deg, hsl(200 70% 50% / 0.2), hsl(220 60% 40% / 0.08));
-    --gradient-vent: linear-gradient(135deg, hsl(180 60% 50% / 0.2), hsl(190 60% 40% / 0.08));
-    --gradient-gas: linear-gradient(135deg, hsl(280 65% 60% / 0.2), hsl(260 60% 40% / 0.08));
-    --gradient-storage: linear-gradient(135deg, hsl(50 70% 55% / 0.18), hsl(40 60% 40% / 0.06));
+    --gradient-bg: radial-gradient(ellipse at top, hsl(213 30% 9%), hsl(212 30% 5%));
 
     /* Shadows / glows */
-    --glow-normal: 0 0 24px hsl(var(--status-normal) / 0.55);
-    --glow-warning: 0 0 28px hsl(var(--status-warning) / 0.65);
-    --glow-danger: 0 0 32px hsl(var(--status-danger) / 0.75);
+    --glow-normal:  0 0 0 1px hsl(var(--status-normal) / 0.35), 0 0 20px hsl(var(--status-normal) / 0.18);
+    --glow-warning: 0 0 0 1px hsl(var(--status-warning) / 0.55), 0 0 24px hsl(var(--status-warning) / 0.32);
+    --glow-danger:  0 0 0 1px hsl(var(--status-danger) / 0.7),  0 0 30px hsl(var(--status-danger) / 0.45);
+    --glow-info:    0 0 0 1px hsl(var(--status-info) / 0.45),   0 0 18px hsl(var(--status-info) / 0.28);
     --shadow-panel: 0 10px 40px -10px hsl(220 80% 2% / 0.7);
 
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -85,16 +101,16 @@
   .glow-normal { box-shadow: var(--glow-normal); }
   .glow-warning { box-shadow: var(--glow-warning); }
   .glow-danger { box-shadow: var(--glow-danger); }
+  .glow-info { box-shadow: var(--glow-info); }
 
-  .pulse-warning {
-    animation: pulse-warn 1.6s ease-in-out infinite;
-  }
-  .pulse-danger {
-    animation: pulse-danger 0.9s ease-in-out infinite;
-  }
-  .blink-critical {
-    animation: blink-critical 0.6s steps(2, start) infinite;
-  }
+  /* Dynamic state borders for cards */
+  .card-state-ok      { @apply border-border; }
+  .card-state-warning { border-color: hsl(var(--status-warning) / 0.55); box-shadow: var(--glow-warning); animation: pulse-warn 2.4s ease-in-out infinite; }
+  .card-state-danger  { border-color: hsl(var(--status-danger) / 0.7);   box-shadow: var(--glow-danger);  animation: pulse-danger 1.1s ease-in-out infinite; }
+
+  .pulse-warning { animation: pulse-warn 1.8s ease-in-out infinite; }
+  .pulse-danger  { animation: pulse-danger 1.0s ease-in-out infinite; }
+  .blink-critical { animation: blink-critical 0.7s steps(2, start) infinite; }
 
   .grid-floor {
     background-image:
@@ -105,12 +121,12 @@
 }
 
 @keyframes pulse-warn {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--status-warning) / 0.7); }
-  50% { box-shadow: 0 0 0 14px hsl(var(--status-warning) / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--status-warning) / 0.45), var(--glow-warning); }
+  50%      { box-shadow: 0 0 0 8px hsl(var(--status-warning) / 0), var(--glow-warning); }
 }
 @keyframes pulse-danger {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--status-danger) / 0.85); }
-  50% { box-shadow: 0 0 0 16px hsl(var(--status-danger) / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--status-danger) / 0.65), var(--glow-danger); }
+  50%      { box-shadow: 0 0 0 12px hsl(var(--status-danger) / 0), var(--glow-danger); }
 }
 @keyframes blink-critical {
   0%, 100% { opacity: 1; }
