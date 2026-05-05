@@ -46,12 +46,26 @@ export function deriveSystemStatus(sensors: Sensor[]): SystemStatus {
   return "normal";
 }
 
-export function deriveActuators(prev: Actuator[], status: SystemStatus, sensors: Sensor[]): Actuator[] {
+export function deriveActuators(
+  prev: Actuator[],
+  status: SystemStatus,
+  sensors: Sensor[],
+  manualOverrides: Partial<Record<Actuator["id"], boolean>> = {},
+): Actuator[] {
   const fumaca = sensors.find((s) => s.id === "S_fumaca")!;
   const glp = sensors.find((s) => s.id === "S_GLP")!;
   const calor = sensors.find((s) => s.id === "S_calor")!;
 
   return prev.map((a) => {
+    const ov = manualOverrides[a.id];
+    if (ov !== undefined) {
+      switch (a.id) {
+        case "ventilacao":  return { ...a, state: ov ? "on"   : "off" };
+        case "valvula_gas": return { ...a, state: ov ? "open" : "closed" };
+        case "bomba":       return { ...a, state: ov ? "on"   : "off" };
+        case "tomadas":     return { ...a, state: ov ? "on"   : "cut" };
+      }
+    }
     switch (a.id) {
       case "ventilacao":
         return { ...a, state: fumaca.state !== "ok" || glp.state !== "ok" || status !== "normal" ? "on" : "off" };
