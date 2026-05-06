@@ -9,7 +9,7 @@ import { EventHistory } from "@/components/safety/EventHistory";
 import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
 import { EmergencyButton } from "@/components/safety/EmergencyButton";
-import { ManualControls } from "@/components/safety/ManualControls";
+import { AlertToasts, type AlertToast } from "@/components/safety/AlertToasts";
 import { CriticalAlertModal, type CriticalAlert } from "@/components/safety/CriticalAlertModal";
 import {
   initialSensors,
