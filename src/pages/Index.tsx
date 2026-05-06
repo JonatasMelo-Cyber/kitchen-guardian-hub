@@ -181,19 +181,16 @@ const Index = () => {
           <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="space-y-5 min-w-0">
               <KitchenView sensors={sensors} status={status} />
-              <div className="grid gap-5 md:grid-cols-2">
-                <EventHistory alerts={alerts} />
-                <RealtimeCharts data={series} />
-              </div>
+              <RealtimeCharts data={series} />
             </div>
             <div className="space-y-5">
               <EmergencyButton onClick={() => handleAction("emergency")} active={status === "emergency"} />
               <ActuatorGrid actuators={actuators} manualOverrides={manualOverrides} onToggle={handleToggleActuator} />
-              <SystemStatusCard status={status} sensors={sensors} />
             </div>
           </section>
 
-          <section>
+          <section className="grid gap-5 md:grid-cols-2">
+            <EventHistory alerts={alerts} />
             <QuickControls onAction={handleAction} />
           </section>
         </div>
