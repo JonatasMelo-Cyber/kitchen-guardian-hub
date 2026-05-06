@@ -4,7 +4,7 @@ import { TopBar } from "@/components/safety/TopBar";
 import { KpiCard } from "@/components/safety/KpiCard";
 import { KitchenView } from "@/components/safety/KitchenView";
 import { ActuatorGrid } from "@/components/safety/ActuatorGrid";
-import { SystemStatusCard } from "@/components/safety/SystemStatusCard";
+
 import { EventHistory } from "@/components/safety/EventHistory";
 import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
