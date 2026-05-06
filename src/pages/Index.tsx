@@ -9,8 +9,7 @@ import { EventHistory } from "@/components/safety/EventHistory";
 import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
 import { EmergencyButton } from "@/components/safety/EmergencyButton";
-import { ManualControls } from "@/components/safety/ManualControls";
-import { CriticalAlertModal, type CriticalAlert } from "@/components/safety/CriticalAlertModal";
+import { AlertToasts, type AlertToast } from "@/components/safety/AlertToasts";
 import {
   initialSensors,
   initialActuators,
@@ -31,7 +30,14 @@ const Index = () => {
   const [series, setSeries] = useState<ChartPoint[]>([]);
   const [history, setHistory] = useState<AlertMessage[]>([]);
   const [manualOverrides, setManualOverrides] = useState<Partial<Record<ActuatorId, boolean>>>({});
-  const [criticalAlert, setCriticalAlert] = useState<CriticalAlert | null>(null);
+  const [toasts, setToasts] = useState<AlertToast[]>([]);
+
+  function pushToast(t: AlertToast) {
+    setToasts((prev) => (prev.some((x) => x.id === t.id) ? prev : [...prev, t]));
+  }
+  function dismissToast(id: string) {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }
   const dismissedAlerts = useRef<Set<string>>(new Set());
   const lastStatus = useRef<SystemStatus>("normal");
 
@@ -99,27 +105,25 @@ const Index = () => {
       };
       setHistory((prev) => [map[status], ...prev].slice(0, 12));
 
-      // Trigger popup on entering a critical state
+      // Trigger toast on entering an alert/critical state
       if (status === "fire") {
-        setCriticalAlert({ id: "fire", title: "Incêndio detectado", message: "Calor e fumaça em níveis críticos. Sistema acionou supressão automaticamente." });
+        pushToast({ id: `fire-${Date.now()}`, level: "danger", title: "Incêndio detectado", message: "Calor e fumaça em níveis críticos." });
       } else if (status === "explosion") {
-        setCriticalAlert({ id: "explosion", title: "Nível de gás crítico", message: "Concentração de GLP acima do limite. Válvula fechada automaticamente. Não acione interruptores." });
+        pushToast({ id: `gas-${Date.now()}`, level: "danger", title: "Risco de explosão", message: "Concentração de GLP acima do limite." });
       } else if (status === "emergency") {
-        setCriticalAlert({ id: "emergency", title: "Emergência geral ativada", message: "Todos os protocolos de segurança foram acionados." });
+        pushToast({ id: `em-${Date.now()}`, level: "danger", title: "Emergência ativada", message: "Protocolos de segurança acionados." });
+      } else if (status === "alert") {
+        pushToast({ id: `al-${Date.now()}`, level: "warning", title: "Risco moderado", message: "Leitura anormal detectada." });
       }
       lastStatus.current = status;
     }
   }, [status]);
 
-  // Per-sensor critical detection (gas, heat, smoke) — independent of system status
+  // Per-sensor critical detection
   useEffect(() => {
     const glp = sensors.find((s) => s.id === "S_GLP")!;
     if (glp.state === "danger" && !dismissedAlerts.current.has("glp")) {
-      setCriticalAlert({
-        id: "glp",
-        title: "Nível de gás crítico detectado",
-        message: `Concentração de GLP em ${Math.round(glp.value)} ppm. Acione protocolos de segurança imediatamente.`,
-      });
+      pushToast({ id: `glp-${Date.now()}`, level: "danger", title: "Nível de gás crítico", message: `GLP em ${Math.round(glp.value)} ppm.` });
       dismissedAlerts.current.add("glp");
     }
     if (glp.state === "ok") dismissedAlerts.current.delete("glp");
@@ -146,7 +150,7 @@ const Index = () => {
         setHistory([]);
         setManualOverrides({});
         dismissedAlerts.current.clear();
-        setCriticalAlert(null);
+        setToasts([]);
         setSensors(initialSensors.map((s) => ({ ...s })));
         break;
     }
@@ -165,43 +169,37 @@ const Index = () => {
   return (
     <div className="flex min-h-screen w-full">
       <Sidebar time={time} date={date} status={status} sensorsOnline={sensors.length} totalSensors={sensors.length} />
-      <main className="flex-1 space-y-4 p-4 lg:p-6 overflow-x-hidden">
-        <TopBar status={status} alertCount={alertCount} time={time} date={date} />
+      <main className="flex-1 overflow-x-hidden p-4 lg:p-6">
+        <div className="mx-auto w-full max-w-[1400px] space-y-5">
+          <TopBar status={status} alertCount={alertCount} time={time} date={date} />
 
-        {/* Manual quick controls — replaces former search bar */}
-        <ManualControls
-          actuators={actuators}
-          manualOverrides={manualOverrides}
-          onToggle={handleToggleActuator}
-        />
+          {/* KPI sensors */}
+          <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {sensors.map((s) => <KpiCard key={s.id} sensor={s} />)}
+          </section>
 
-        {/* KPI sensors with dynamic borders */}
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {sensors.map((s) => <KpiCard key={s.id} sensor={s} />)}
-        </section>
-
-        <section className="grid gap-4 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-4">
-            <KitchenView sensors={sensors} status={status} />
-            <div className="grid gap-4 md:grid-cols-2">
-              <EventHistory alerts={alerts} />
-              <RealtimeCharts data={series} />
+          <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="space-y-5 min-w-0">
+              <KitchenView sensors={sensors} status={status} />
+              <div className="grid gap-5 md:grid-cols-2">
+                <EventHistory alerts={alerts} />
+                <RealtimeCharts data={series} />
+              </div>
             </div>
-          </div>
-          <div className="space-y-4">
-            {/* Emergency above actuators, with prominence */}
-            <EmergencyButton onClick={() => handleAction("emergency")} active={status === "emergency"} />
-            <ActuatorGrid actuators={actuators} manualOverrides={manualOverrides} onToggle={handleToggleActuator} />
-            <SystemStatusCard status={status} sensors={sensors} />
-          </div>
-        </section>
+            <div className="space-y-5">
+              <EmergencyButton onClick={() => handleAction("emergency")} active={status === "emergency"} />
+              <ActuatorGrid actuators={actuators} manualOverrides={manualOverrides} onToggle={handleToggleActuator} />
+              <SystemStatusCard status={status} sensors={sensors} />
+            </div>
+          </section>
 
-        <section>
-          <QuickControls onAction={handleAction} />
-        </section>
+          <section>
+            <QuickControls onAction={handleAction} />
+          </section>
+        </div>
       </main>
 
-      <CriticalAlertModal alert={criticalAlert} onClose={() => setCriticalAlert(null)} />
+      <AlertToasts toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 };
