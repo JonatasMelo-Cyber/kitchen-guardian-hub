@@ -4,7 +4,7 @@ import { TopBar } from "@/components/safety/TopBar";
 import { KpiCard } from "@/components/safety/KpiCard";
 import { KitchenView } from "@/components/safety/KitchenView";
 import { ActuatorGrid } from "@/components/safety/ActuatorGrid";
-import { SystemStatusCard } from "@/components/safety/SystemStatusCard";
+
 import { EventHistory } from "@/components/safety/EventHistory";
 import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
@@ -136,13 +136,16 @@ const Index = () => {
   }
 
   function handleAction(a: string) {
+    if (a === "emergency") {
+      setForceStatus((prev) => (prev === "emergency" ? null : "emergency"));
+      return;
+    }
     setForceStatus(null);
     switch (a) {
       case "fire":      setSensor("S_calor", 85); setSensor("S_fumaca", 50); break;
       case "gas":       setSensor("S_GLP", 1200); break;
       case "smoke":     setSensor("S_fumaca", 50); break;
       case "motion":    setSensor("S_movimento", 1); break;
-      case "emergency": setForceStatus("emergency"); break;
       case "test":
         setHistory((p) => [{ id: `t-${Date.now()}`, level: "info" as const, message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") }, ...p].slice(0, 12));
         break;
@@ -181,19 +184,16 @@ const Index = () => {
           <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="space-y-5 min-w-0">
               <KitchenView sensors={sensors} status={status} />
-              <div className="grid gap-5 md:grid-cols-2">
-                <EventHistory alerts={alerts} />
-                <RealtimeCharts data={series} />
-              </div>
+              <RealtimeCharts data={series} />
             </div>
             <div className="space-y-5">
               <EmergencyButton onClick={() => handleAction("emergency")} active={status === "emergency"} />
               <ActuatorGrid actuators={actuators} manualOverrides={manualOverrides} onToggle={handleToggleActuator} />
-              <SystemStatusCard status={status} sensors={sensors} />
             </div>
           </section>
 
-          <section>
+          <section className="grid gap-5 md:grid-cols-2">
+            <EventHistory alerts={alerts} />
             <QuickControls onAction={handleAction} />
           </section>
         </div>
