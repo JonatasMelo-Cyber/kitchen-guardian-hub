@@ -10,7 +10,6 @@ import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
 import { EmergencyButton } from "@/components/safety/EmergencyButton";
 import { AlertToasts, type AlertToast } from "@/components/safety/AlertToasts";
-import { CriticalAlertModal, type CriticalAlert } from "@/components/safety/CriticalAlertModal";
 import {
   initialSensors,
   initialActuators,
@@ -31,7 +30,14 @@ const Index = () => {
   const [series, setSeries] = useState<ChartPoint[]>([]);
   const [history, setHistory] = useState<AlertMessage[]>([]);
   const [manualOverrides, setManualOverrides] = useState<Partial<Record<ActuatorId, boolean>>>({});
-  const [criticalAlert, setCriticalAlert] = useState<CriticalAlert | null>(null);
+  const [toasts, setToasts] = useState<AlertToast[]>([]);
+
+  function pushToast(t: AlertToast) {
+    setToasts((prev) => (prev.some((x) => x.id === t.id) ? prev : [...prev, t]));
+  }
+  function dismissToast(id: string) {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }
   const dismissedAlerts = useRef<Set<string>>(new Set());
   const lastStatus = useRef<SystemStatus>("normal");
 
