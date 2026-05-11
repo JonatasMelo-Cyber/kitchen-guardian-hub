@@ -1,4 +1,4 @@
-import { Flame, Activity, ShieldCheck, Cpu, Wifi } from "lucide-react";
+import { Flame } from "lucide-react";
 import type { SystemStatus } from "@/types/safety";
 import { cn } from "@/lib/utils";
 
