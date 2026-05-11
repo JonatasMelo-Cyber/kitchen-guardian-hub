@@ -3,11 +3,14 @@ import { Sidebar } from "@/components/safety/Sidebar";
 import { TopBar } from "@/components/safety/TopBar";
 import { KpiCard } from "@/components/safety/KpiCard";
 import { KitchenView } from "@/components/safety/KitchenView";
-
+import { ActuatorGrid } from "@/components/safety/ActuatorGrid";
+import { SystemStatusCard } from "@/components/safety/SystemStatusCard";
 import { EventHistory } from "@/components/safety/EventHistory";
 import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
-import { AlertToasts, type AlertToast } from "@/components/safety/AlertToasts";
+import { EmergencyButton } from "@/components/safety/EmergencyButton";
+import { ManualControls } from "@/components/safety/ManualControls";
+import { CriticalAlertModal, type CriticalAlert } from "@/components/safety/CriticalAlertModal";
 import {
   initialSensors,
   initialActuators,
@@ -28,14 +31,7 @@ const Index = () => {
   const [series, setSeries] = useState<ChartPoint[]>([]);
   const [history, setHistory] = useState<AlertMessage[]>([]);
   const [manualOverrides, setManualOverrides] = useState<Partial<Record<ActuatorId, boolean>>>({});
-  const [toasts, setToasts] = useState<AlertToast[]>([]);
-
-  function pushToast(t: AlertToast) {
-    setToasts((prev) => (prev.some((x) => x.id === t.id) ? prev : [...prev, t]));
-  }
-  function dismissToast(id: string) {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }
+  const [criticalAlert, setCriticalAlert] = useState<CriticalAlert | null>(null);
   const dismissedAlerts = useRef<Set<string>>(new Set());
   const lastStatus = useRef<SystemStatus>("normal");
 
@@ -103,25 +99,27 @@ const Index = () => {
       };
       setHistory((prev) => [map[status], ...prev].slice(0, 12));
 
-      // Trigger toast on entering an alert/critical state
+      // Trigger popup on entering a critical state
       if (status === "fire") {
-        pushToast({ id: `fire-${Date.now()}`, level: "danger", title: "Incêndio detectado", message: "Calor e fumaça em níveis críticos." });
+        setCriticalAlert({ id: "fire", title: "Incêndio detectado", message: "Calor e fumaça em níveis críticos. Sistema acionou supressão automaticamente." });
       } else if (status === "explosion") {
-        pushToast({ id: `gas-${Date.now()}`, level: "danger", title: "Risco de explosão", message: "Concentração de GLP acima do limite." });
+        setCriticalAlert({ id: "explosion", title: "Nível de gás crítico", message: "Concentração de GLP acima do limite. Válvula fechada automaticamente. Não acione interruptores." });
       } else if (status === "emergency") {
-        pushToast({ id: `em-${Date.now()}`, level: "danger", title: "Emergência ativada", message: "Protocolos de segurança acionados." });
-      } else if (status === "alert") {
-        pushToast({ id: `al-${Date.now()}`, level: "warning", title: "Risco moderado", message: "Leitura anormal detectada." });
+        setCriticalAlert({ id: "emergency", title: "Emergência geral ativada", message: "Todos os protocolos de segurança foram acionados." });
       }
       lastStatus.current = status;
     }
   }, [status]);
 
-  // Per-sensor critical detection
+  // Per-sensor critical detection (gas, heat, smoke) — independent of system status
   useEffect(() => {
     const glp = sensors.find((s) => s.id === "S_GLP")!;
     if (glp.state === "danger" && !dismissedAlerts.current.has("glp")) {
-      pushToast({ id: `glp-${Date.now()}`, level: "danger", title: "Nível de gás crítico", message: `GLP em ${Math.round(glp.value)} ppm.` });
+      setCriticalAlert({
+        id: "glp",
+        title: "Nível de gás crítico detectado",
+        message: `Concentração de GLP em ${Math.round(glp.value)} ppm. Acione protocolos de segurança imediatamente.`,
+      });
       dismissedAlerts.current.add("glp");
     }
     if (glp.state === "ok") dismissedAlerts.current.delete("glp");
@@ -134,16 +132,13 @@ const Index = () => {
   }
 
   function handleAction(a: string) {
-    if (a === "emergency") {
-      setForceStatus((prev) => (prev === "emergency" ? null : "emergency"));
-      return;
-    }
     setForceStatus(null);
     switch (a) {
       case "fire":      setSensor("S_calor", 85); setSensor("S_fumaca", 50); break;
       case "gas":       setSensor("S_GLP", 1200); break;
       case "smoke":     setSensor("S_fumaca", 50); break;
       case "motion":    setSensor("S_movimento", 1); break;
+      case "emergency": setForceStatus("emergency"); break;
       case "test":
         setHistory((p) => [{ id: `t-${Date.now()}`, level: "info" as const, message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") }, ...p].slice(0, 12));
         break;
@@ -151,7 +146,7 @@ const Index = () => {
         setHistory([]);
         setManualOverrides({});
         dismissedAlerts.current.clear();
-        setToasts([]);
+        setCriticalAlert(null);
         setSensors(initialSensors.map((s) => ({ ...s })));
         break;
     }
@@ -170,29 +165,43 @@ const Index = () => {
   return (
     <div className="flex min-h-screen w-full">
       <Sidebar time={time} date={date} status={status} sensorsOnline={sensors.length} totalSensors={sensors.length} />
-      <main className="flex-1 overflow-x-hidden p-4 lg:p-6">
-        <div className="mx-auto w-full max-w-[1400px] space-y-5">
-          <TopBar status={status} alertCount={alertCount} time={time} date={date} />
+      <main className="flex-1 space-y-4 p-4 lg:p-6 overflow-x-hidden">
+        <TopBar status={status} alertCount={alertCount} time={time} date={date} />
 
-          {/* KPI sensors */}
-          <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {sensors.map((s) => <KpiCard key={s.id} sensor={s} />)}
-          </section>
+        {/* Manual quick controls — replaces former search bar */}
+        <ManualControls
+          actuators={actuators}
+          manualOverrides={manualOverrides}
+          onToggle={handleToggleActuator}
+        />
 
-          <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <div className="space-y-5 min-w-0">
-              <KitchenView sensors={sensors} status={status} />
+        {/* KPI sensors with dynamic borders */}
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {sensors.map((s) => <KpiCard key={s.id} sensor={s} />)}
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-[1fr_320px]">
+          <div className="space-y-4">
+            <KitchenView sensors={sensors} status={status} />
+            <div className="grid gap-4 md:grid-cols-2">
+              <EventHistory alerts={alerts} />
               <RealtimeCharts data={series} />
             </div>
-            <div className="space-y-5">
-              <EventHistory alerts={alerts} />
-              <QuickControls onAction={handleAction} />
-            </div>
-          </section>
-        </div>
+          </div>
+          <div className="space-y-4">
+            {/* Emergency above actuators, with prominence */}
+            <EmergencyButton onClick={() => handleAction("emergency")} active={status === "emergency"} />
+            <ActuatorGrid actuators={actuators} manualOverrides={manualOverrides} onToggle={handleToggleActuator} />
+            <SystemStatusCard status={status} sensors={sensors} />
+          </div>
+        </section>
+
+        <section>
+          <QuickControls onAction={handleAction} />
+        </section>
       </main>
 
-      <AlertToasts toasts={toasts} onDismiss={dismissToast} />
+      <CriticalAlertModal alert={criticalAlert} onClose={() => setCriticalAlert(null)} />
     </div>
   );
 };

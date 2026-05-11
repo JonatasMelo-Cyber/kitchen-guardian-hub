@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Bell } from "lucide-react";
 import type { SystemStatus } from "@/types/safety";
 import { cn } from "@/lib/utils";
 import { statusMeta } from "@/lib/safety-engine";
@@ -36,10 +36,18 @@ export function TopBar({ status, alertCount, time, date }: { status: SystemStatu
         )}
       </div>
 
-      <div className="flex shrink-0 items-center">
-        <div className="rounded-xl border border-border bg-card px-4 py-2.5 text-right shadow-sm">
-          <div className="font-mono text-base font-bold text-foreground tabular-nums leading-none">{time}</div>
-          <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">{date}</div>
+      <div className="flex shrink-0 items-center gap-2">
+        <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-colors hover:bg-muted">
+          <Bell className="h-4 w-4" />
+          {alertCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-status-danger px-1 text-[10px] font-bold text-status-danger-foreground">
+              {alertCount}
+            </span>
+          )}
+        </button>
+        <div className="rounded-xl border border-border bg-card px-3 py-2 text-right">
+          <div className="font-mono text-sm font-bold text-foreground tabular-nums leading-none">{time}</div>
+          <div className="text-[10px] text-muted-foreground mt-0.5">{date}</div>
         </div>
       </div>
     </header>
