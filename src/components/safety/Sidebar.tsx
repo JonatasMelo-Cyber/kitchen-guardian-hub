@@ -1,4 +1,4 @@
-import { Flame, Activity, ShieldCheck, Cpu, Wifi } from "lucide-react";
+import { Flame } from "lucide-react";
 import type { SystemStatus } from "@/types/safety";
 import { cn } from "@/lib/utils";
 
@@ -56,10 +56,6 @@ export function Sidebar({
           <div className="text-[10px] text-muted-foreground">{date}</div>
         </div>
 
-        <InfoRow icon={Activity} label="Sensores" value={`${sensorsOnline}/${totalSensors}`} ok={sensorsOnline === totalSensors} />
-        <InfoRow icon={Wifi} label="Conexão" value="Online" ok />
-        <InfoRow icon={Cpu} label="Controlador" value="OK" ok />
-        <InfoRow icon={ShieldCheck} label="Brigada" value="Pronta" ok />
       </div>
 
       <div className="flex-1" />
@@ -69,17 +65,5 @@ export function Sidebar({
         <div className="text-[11px] font-mono text-foreground/80">v2.4.0 · build 240</div>
       </div>
     </aside>
-  );
-}
-
-function InfoRow({ icon: Icon, label, value, ok }: { icon: any; label: string; value: string; ok?: boolean }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-sidebar-border/60 bg-card/30 px-3 py-1.5">
-      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-        <Icon className="h-3.5 w-3.5" />
-        {label}
-      </div>
-      <span className={cn("text-[11px] font-bold tabular-nums", ok ? "text-status-normal" : "text-status-warning")}>{value}</span>
-    </div>
   );
 }
