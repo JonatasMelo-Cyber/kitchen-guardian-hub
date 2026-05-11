@@ -60,14 +60,3 @@ export function Sidebar({
   );
 }
 
-function InfoRow({ icon: Icon, label, value, ok }: { icon: any; label: string; value: string; ok?: boolean }) {
-  return (
-    <div className="flex items-center justify-between rounded-md border border-sidebar-border/60 bg-card/30 px-2.5 py-1.5">
-      <div className="flex items-center gap-1.5 text-[10.5px] text-muted-foreground">
-        <Icon className="h-3 w-3" />
-        {label}
-      </div>
-      <span className={cn("text-[10.5px] font-bold tabular-nums", ok ? "text-status-normal" : "text-status-warning")}>{value}</span>
-    </div>
-  );
-}
