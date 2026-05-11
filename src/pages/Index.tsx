@@ -1,4 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+/* =============================================================================
+ * Dashboard SafeKitchen
+ * -----------------------------------------------------------------------------
+ * Esta página consome `useSafety()` (SafetyContext) — a fonte ÚNICA de dados.
+ * Hoje os dados vêm de um mock local; ao ligar o backend Node.js basta trocar
+ * a implementação dentro de `src/hooks/useSafetyData.ts` (ver INTEGRACAO_BACKEND.md).
+ *
+ * Mapeamento Componente → Origem dos dados (futuro backend):
+ *   KpiCard         <- GET /api/sensores         + socket "sensor:update"
+ *   ActuatorGrid    <- GET /api/atuadores        + socket "atuador:update"
+ *   ManualControls  -> POST /api/atuadores/:id/toggle (emit "comando")
+ *   EmergencyButton -> POST /api/sistema/emergencia   (emit "emergencia:toggle")
+ *   EventHistory    <- GET /api/alertas          + socket "alerta"
+ *   RealtimeCharts  <- GET /api/sensores/:id/historico  (ou socket "atualizacao")
+ *   QuickControls   -> POST /api/sistema/teste | /api/alertas/limpar
+ * ========================================================================== */
+import { useEffect, useRef, useState } from "react";
 import { Sidebar } from "@/components/safety/Sidebar";
 import { TopBar } from "@/components/safety/TopBar";
 import { KpiCard } from "@/components/safety/KpiCard";
@@ -11,107 +27,40 @@ import { QuickControls } from "@/components/safety/QuickControls";
 import { EmergencyButton } from "@/components/safety/EmergencyButton";
 import { ManualControls } from "@/components/safety/ManualControls";
 import { CriticalAlertModal, type CriticalAlert } from "@/components/safety/CriticalAlertModal";
-import {
-  initialSensors,
-  initialActuators,
-  evaluateSensorState,
-  deriveSystemStatus,
-  deriveActuators,
-  buildAlerts,
-} from "@/lib/safety-engine";
-import type { Sensor, SystemStatus, AlertMessage, ActuatorId, Actuator } from "@/types/safety";
+import { SafetyProvider, useSafety } from "@/context/SafetyContext";
+import type { SystemStatus } from "@/types/safety";
 
-interface ChartPoint { t: string; calor: number; fumaca: number; glp: number }
+function Dashboard() {
+  // ------------------------------------------------------------------
+  // Estado global (mock hoje, backend amanhã — ver useSafetyData.ts)
+  // TODO: ao plugar o backend, este hook já estará servindo dados reais
+  // ------------------------------------------------------------------
+  const {
+    sensors, actuators, status, alerts, series, manualOverrides,
+    toggleActuator, triggerEmergency, testSystem, clearAlerts, setForceStatus,
+  } = useSafety();
 
-const Index = () => {
-  const [sensors, setSensors] = useState<Sensor[]>(initialSensors);
-  const [forceStatus, setForceStatus] = useState<SystemStatus | null>(null);
-  const [autoMode] = useState(true);
-  const [now, setNow] = useState(() => new Date());
-  const [series, setSeries] = useState<ChartPoint[]>([]);
-  const [history, setHistory] = useState<AlertMessage[]>([]);
-  const [manualOverrides, setManualOverrides] = useState<Partial<Record<ActuatorId, boolean>>>({});
   const [criticalAlert, setCriticalAlert] = useState<CriticalAlert | null>(null);
-  const dismissedAlerts = useRef<Set<string>>(new Set());
+  const [now, setNow] = useState(() => new Date());
   const lastStatus = useRef<SystemStatus>("normal");
+  const dismissedAlerts = useRef<Set<string>>(new Set());
 
-  // Real-time tick
+  // Relógio do header (puramente visual)
   useEffect(() => {
-    const id = setInterval(() => {
-      const d = new Date();
-      setNow(d);
-      setSensors((prev) =>
-        prev.map((s) => {
-          let v = s.value;
-          if (autoMode) {
-            const drift = (Math.random() - 0.5) * (s.id === "S_GLP" ? 30 : 4);
-            v = Math.max(0, v + drift);
-            const baseline = { S_calor: 28, S_fumaca: 4, S_GLP: 80, S_movimento: 0 }[s.id];
-            v = v + (baseline - v) * 0.18;
-            if (s.id === "S_movimento") v = Math.random() < 0.18 ? 1 : 0;
-          }
-          v = Math.round(v * 10) / 10;
-          return { ...s, value: v, state: evaluateSensorState(s.id, v) };
-        }),
-      );
-    }, 1500);
+    const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
-  }, [autoMode]);
+  }, []);
 
-  // Chart series
-  useEffect(() => {
-    const t = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-    setSeries((prev) => {
-      const next = [
-        ...prev,
-        {
-          t,
-          calor: sensors.find((s) => s.id === "S_calor")!.value,
-          fumaca: sensors.find((s) => s.id === "S_fumaca")!.value,
-          glp: sensors.find((s) => s.id === "S_GLP")!.value,
-        },
-      ];
-      return next.slice(-20);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [now]);
-
-  const status: SystemStatus = useMemo(
-    () => forceStatus ?? deriveSystemStatus(sensors),
-    [sensors, forceStatus],
-  );
-  const actuators = useMemo(
-    () => deriveActuators(initialActuators, status, sensors, manualOverrides),
-    [status, sensors, manualOverrides],
-  );
-  const liveAlerts = useMemo(() => buildAlerts(sensors, status), [sensors, status]);
-
-  // Status-change events log + critical popup
+  // TODO: escutar evento socket "alerta" para abrir o popup crítico vindo do backend
   useEffect(() => {
     if (status !== lastStatus.current) {
-      const t = new Date().toLocaleTimeString("pt-BR");
-      const map: Record<SystemStatus, AlertMessage> = {
-        normal:    { id: `n-${Date.now()}`,  level: "info",     message: "Sistema retornou ao estado normal", time: t },
-        alert:     { id: `a-${Date.now()}`,  level: "warning",  message: "Alerta: leitura anormal detectada", time: t },
-        fire:      { id: `f-${Date.now()}`,  level: "critical", message: "Incêndio detectado na área de cozimento", time: t },
-        explosion: { id: `e-${Date.now()}`,  level: "critical", message: "Vazamento de GLP — risco de explosão", time: t },
-        emergency: { id: `em-${Date.now()}`, level: "critical", message: "Emergência manual ativada pelo operador", time: t },
-      };
-      setHistory((prev) => [map[status], ...prev].slice(0, 12));
-
-      // Trigger popup on entering a critical state
-      if (status === "fire") {
-        setCriticalAlert({ id: "fire", title: "Incêndio detectado", message: "Calor e fumaça em níveis críticos. Sistema acionou supressão automaticamente." });
-      } else if (status === "explosion") {
-        setCriticalAlert({ id: "explosion", title: "Nível de gás crítico", message: "Concentração de GLP acima do limite. Válvula fechada automaticamente. Não acione interruptores." });
-      } else if (status === "emergency") {
-        setCriticalAlert({ id: "emergency", title: "Emergência geral ativada", message: "Todos os protocolos de segurança foram acionados." });
-      }
+      if (status === "fire")      setCriticalAlert({ id: "fire", title: "Incêndio detectado", message: "Calor e fumaça em níveis críticos. Sistema acionou supressão automaticamente." });
+      else if (status === "explosion") setCriticalAlert({ id: "explosion", title: "Nível de gás crítico", message: "Concentração de GLP acima do limite. Válvula fechada automaticamente." });
+      else if (status === "emergency") setCriticalAlert({ id: "emergency", title: "Emergência geral ativada", message: "Todos os protocolos de segurança foram acionados." });
       lastStatus.current = status;
     }
   }, [status]);
 
-  // Per-sensor critical detection (gas, heat, smoke) — independent of system status
   useEffect(() => {
     const glp = sensors.find((s) => s.id === "S_GLP")!;
     if (glp.state === "danger" && !dismissedAlerts.current.has("glp")) {
@@ -125,39 +74,22 @@ const Index = () => {
     if (glp.state === "ok") dismissedAlerts.current.delete("glp");
   }, [sensors]);
 
-  const alerts = history.length ? history : liveAlerts;
-
-  function setSensor(id: Sensor["id"], value: number) {
-    setSensors((prev) => prev.map((s) => (s.id === id ? { ...s, value, state: evaluateSensorState(id, value) } : s)));
-  }
-
+  // Atalhos do QuickControls (botões manuais de simulação/emergência)
   function handleAction(a: string) {
-    if (a !== "emergency") setForceStatus(null);
     switch (a) {
-      case "fire":      setSensor("S_calor", 85); setSensor("S_fumaca", 50); break;
-      case "gas":       setSensor("S_GLP", 1200); break;
-      case "smoke":     setSensor("S_fumaca", 50); break;
-      case "motion":    setSensor("S_movimento", 1); break;
-      case "emergency":
-        setForceStatus((prev) => (prev === "emergency" ? null : "emergency"));
-        break;
-      case "test":
-        setHistory((p) => [{ id: `t-${Date.now()}`, level: "info" as const, message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") }, ...p].slice(0, 12));
-        break;
+      // TODO: substituir simulação por POST /api/sistema/comando quando houver backend
+      case "fire":      setForceStatus("fire"); break;
+      case "gas":       setForceStatus("explosion"); break;
+      case "smoke":     setForceStatus("alert"); break;
+      case "emergency": triggerEmergency(); break;
+      case "test":      testSystem(); break;
       case "clear":
-        setHistory([]);
-        setManualOverrides({});
+        clearAlerts();
         dismissedAlerts.current.clear();
         setCriticalAlert(null);
-        setSensors(initialSensors.map((s) => ({ ...s })));
+        setForceStatus(null);
         break;
     }
-  }
-
-  function handleToggleActuator(id: ActuatorId) {
-    const current = actuators.find((a) => a.id === id)!;
-    const isOn = current.state === "on" || current.state === "open";
-    setManualOverrides((prev) => ({ ...prev, [id]: !isOn }));
   }
 
   const time = now.toLocaleTimeString("pt-BR", { hour12: false });
@@ -170,14 +102,15 @@ const Index = () => {
       <main className="flex-1 space-y-4 p-4 lg:p-6 overflow-x-hidden">
         <TopBar status={status} alertCount={alertCount} time={time} date={date} />
 
-        {/* Manual quick controls — replaces former search bar */}
+        {/* Controles manuais — TODO: emit socket "comando" no toggle */}
         <ManualControls
           actuators={actuators}
           manualOverrides={manualOverrides}
-          onToggle={handleToggleActuator}
+          onToggle={toggleActuator}
         />
 
-        {/* KPI sensors with dynamic borders */}
+        {/* KPIs — cada card representa um sensor (S_calor, S_fumaca, S_GLP, S_movimento)
+            TODO: dado vem de socket "sensor:update" / GET /api/sensores */}
         <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {sensors.map((s) => <KpiCard key={s.id} sensor={s} />)}
         </section>
@@ -186,14 +119,17 @@ const Index = () => {
           <div className="space-y-4">
             <KitchenView sensors={sensors} status={status} />
             <div className="grid gap-4 md:grid-cols-2">
+              {/* TODO: histórico vem de GET /api/alertas + socket "alerta" */}
               <EventHistory alerts={alerts} />
+              {/* TODO: série temporal vem de GET /api/sensores/:id/historico */}
               <RealtimeCharts data={series} />
             </div>
           </div>
           <div className="space-y-4">
-            {/* Emergency above actuators, with prominence */}
+            {/* TODO: POST /api/sistema/emergencia */}
             <EmergencyButton onClick={() => handleAction("emergency")} active={status === "emergency"} />
-            <ActuatorGrid actuators={actuators} manualOverrides={manualOverrides} onToggle={handleToggleActuator} />
+            {/* TODO: estado vem de socket "atuador:update" */}
+            <ActuatorGrid actuators={actuators} manualOverrides={manualOverrides} onToggle={toggleActuator} />
             <SystemStatusCard status={status} sensors={sensors} />
           </div>
         </section>
@@ -206,6 +142,12 @@ const Index = () => {
       <CriticalAlertModal alert={criticalAlert} onClose={() => setCriticalAlert(null)} />
     </div>
   );
-};
+}
+
+const Index = () => (
+  <SafetyProvider>
+    <Dashboard />
+  </SafetyProvider>
+);
 
 export default Index;
