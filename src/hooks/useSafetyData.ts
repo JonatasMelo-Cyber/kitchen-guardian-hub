@@ -147,7 +147,7 @@ export function useSafetyData() {
 
   function testSystem() {
     setHistory((p) => [
-      { id: `t-${Date.now()}`, level: "info", message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") },
+      { id: `t-${Date.now()}`, level: "info" as const, message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") },
       ...p,
     ].slice(0, 12));
     // TODO: api.post(endpoints.sistema.teste);
