@@ -3,12 +3,10 @@ import { Sidebar } from "@/components/safety/Sidebar";
 import { TopBar } from "@/components/safety/TopBar";
 import { KpiCard } from "@/components/safety/KpiCard";
 import { KitchenView } from "@/components/safety/KitchenView";
-import { ActuatorGrid } from "@/components/safety/ActuatorGrid";
 
 import { EventHistory } from "@/components/safety/EventHistory";
 import { RealtimeCharts } from "@/components/safety/RealtimeCharts";
 import { QuickControls } from "@/components/safety/QuickControls";
-import { EmergencyButton } from "@/components/safety/EmergencyButton";
 import { AlertToasts, type AlertToast } from "@/components/safety/AlertToasts";
 import {
   initialSensors,
