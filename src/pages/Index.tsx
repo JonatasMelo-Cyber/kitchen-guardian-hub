@@ -132,13 +132,15 @@ const Index = () => {
   }
 
   function handleAction(a: string) {
-    setForceStatus(null);
+    if (a !== "emergency") setForceStatus(null);
     switch (a) {
       case "fire":      setSensor("S_calor", 85); setSensor("S_fumaca", 50); break;
       case "gas":       setSensor("S_GLP", 1200); break;
       case "smoke":     setSensor("S_fumaca", 50); break;
       case "motion":    setSensor("S_movimento", 1); break;
-      case "emergency": setForceStatus("emergency"); break;
+      case "emergency":
+        setForceStatus((prev) => (prev === "emergency" ? null : "emergency"));
+        break;
       case "test":
         setHistory((p) => [{ id: `t-${Date.now()}`, level: "info" as const, message: "Teste de sistema executado: todos sensores OK", time: new Date().toLocaleTimeString("pt-BR") }, ...p].slice(0, 12));
         break;
