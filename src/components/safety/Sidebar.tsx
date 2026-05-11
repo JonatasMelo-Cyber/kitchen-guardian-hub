@@ -55,14 +55,6 @@ export function Sidebar({
         <div className="mt-0.5 text-[10px] text-muted-foreground">{date}</div>
       </div>
 
-      {/* Info rows */}
-      <div className="mt-2 space-y-1.5">
-        <InfoRow icon={Activity} label="Sensores" value={`${sensorsOnline}/${totalSensors}`} ok={sensorsOnline === totalSensors} />
-        <InfoRow icon={Wifi} label="Conexão" value="Online" ok />
-        <InfoRow icon={Cpu} label="Controlador" value="OK" ok />
-        <InfoRow icon={ShieldCheck} label="Brigada" value="Pronta" ok />
-      </div>
-
       <div className="flex-1" />
     </aside>
   );
