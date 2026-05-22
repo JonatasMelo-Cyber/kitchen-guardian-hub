@@ -38,6 +38,7 @@ export function TopBar({ status, alertCount, time, date }: { status: SystemStatu
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        <HelpModal />
         <div className="rounded-xl border border-border bg-card px-3 py-2 text-right">
           <div className="font-mono text-sm font-bold text-foreground tabular-nums leading-none">{time}</div>
           <div className="text-[10px] text-muted-foreground mt-0.5">{date}</div>
