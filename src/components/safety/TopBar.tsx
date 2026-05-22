@@ -2,6 +2,7 @@ import { AlertTriangle } from "lucide-react";
 import type { SystemStatus } from "@/types/safety";
 import { cn } from "@/lib/utils";
 import { statusMeta } from "@/lib/safety-engine";
+import { HelpModal } from "./HelpModal";
 
 const banner: Record<SystemStatus, { cls: string; title: string; sub: string } | null> = {
   normal: null,
